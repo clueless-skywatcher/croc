@@ -15,7 +15,7 @@ struct CatFileMode {
     show_size: bool,
 
     #[arg(short = 'e')]
-    show_exists: bool
+    show_exists: bool,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -24,7 +24,7 @@ pub struct CatFileCommand {
     #[command(flatten)]
     mode: CatFileMode,
 
-    pub what: String
+    pub what: String,
 }
 
 impl Runnable for CatFileCommand {

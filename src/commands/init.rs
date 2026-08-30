@@ -7,7 +7,7 @@ use crate::commands::Runnable;
 #[derive(Args, Debug, Clone)]
 pub struct InitCommand {
     #[arg(short, long, default_value = ".")]
-    pub path: PathBuf
+    pub path: PathBuf,
 }
 
 impl Runnable for InitCommand {

@@ -25,7 +25,10 @@ fn init_defaults_to_current_directory() {
 
 #[test]
 fn init_accepts_short_and_long_path_flags() {
-    for args in [["croc", "init", "-p", "/tmp/x"], ["croc", "init", "--path", "/tmp/x"]] {
+    for args in [
+        ["croc", "init", "-p", "/tmp/x"],
+        ["croc", "init", "--path", "/tmp/x"],
+    ] {
         let cli = Croc::try_parse_from(args).unwrap();
         let CrocCommands::Init(cmd) = cli.command else {
             return;

@@ -5,8 +5,8 @@ use crate::commands::{
 };
 
 pub mod cat_file;
-pub mod init;
 pub mod hash_object;
+pub mod init;
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum CrocCommands {
