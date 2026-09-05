@@ -164,7 +164,10 @@ fn failures_exit_nonzero() {
     let out = croc_in(tmp.path(), &["hash-object", "nope.txt"]);
 
     assert!(!out.status.success());
-    assert!(out.stdout.is_empty(), "nothing should be printed on failure");
+    assert!(
+        out.stdout.is_empty(),
+        "nothing should be printed on failure"
+    );
 }
 
 // -------------------------------------------------------------- hashing
@@ -211,7 +214,10 @@ fn prints_forty_lowercase_hex_characters() {
     assert!(oid.ends_with('\n'), "output should end with a newline");
     let oid = oid.trim();
     assert_eq!(oid.len(), 40);
-    assert!(oid.chars().all(|c| c.is_ascii_hexdigit() && !c.is_uppercase()));
+    assert!(
+        oid.chars()
+            .all(|c| c.is_ascii_hexdigit() && !c.is_uppercase())
+    );
 }
 
 #[test]
@@ -243,8 +249,14 @@ fn trailing_newline_changes_the_hash() {
     let (tmp_a, a) = fixture(b"hello world");
     let (tmp_b, b) = fixture(b"hello world\n");
 
-    let oid_a = stdout_of(&croc_in(tmp_a.path(), &["hash-object", a.to_str().unwrap()]));
-    let oid_b = stdout_of(&croc_in(tmp_b.path(), &["hash-object", b.to_str().unwrap()]));
+    let oid_a = stdout_of(&croc_in(
+        tmp_a.path(),
+        &["hash-object", a.to_str().unwrap()],
+    ));
+    let oid_b = stdout_of(&croc_in(
+        tmp_b.path(),
+        &["hash-object", b.to_str().unwrap()],
+    ));
 
     assert_ne!(oid_a.trim(), oid_b.trim());
 }
@@ -260,9 +272,18 @@ fn write_stores_a_loose_object_at_the_sharded_path() {
     assert!(out.status.success());
 
     let (dir, rest) = HELLO_WORLD_OID.split_at(2);
-    let object = tmp.path().join(".croc").join("objects").join(dir).join(rest);
+    let object = tmp
+        .path()
+        .join(".croc")
+        .join("objects")
+        .join(dir)
+        .join(rest);
 
-    assert!(object.is_file(), "expected an object at {}", object.display());
+    assert!(
+        object.is_file(),
+        "expected an object at {}",
+        object.display()
+    );
     assert!(!fs::read(&object).unwrap().is_empty());
 }
 
@@ -274,7 +295,10 @@ fn writing_the_same_object_twice_is_idempotent() {
     let first = croc_in(tmp.path(), &["hash-object", "-w", file.to_str().unwrap()]);
     let second = croc_in(tmp.path(), &["hash-object", "-w", file.to_str().unwrap()]);
 
-    assert!(second.status.success(), "re-writing an object must not fail");
+    assert!(
+        second.status.success(),
+        "re-writing an object must not fail"
+    );
     assert_eq!(stdout_of(&first).trim(), HELLO_WORLD_OID);
     assert_eq!(stdout_of(&second).trim(), HELLO_WORLD_OID);
 }

@@ -1,6 +1,5 @@
 use std::{
-    fmt::format,
-    fs::{self, File, TryLockError::Error},
+    fs::{self, File},
     io::{self, Write},
     path::PathBuf,
 };

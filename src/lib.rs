@@ -1,5 +1,5 @@
-pub mod commands;
 pub mod cli;
+pub mod commands;
 
 use crate::cli::Croc;
 use crate::commands::{CrocCommands, Runnable};
