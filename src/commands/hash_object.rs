@@ -1,4 +1,5 @@
 use std::{
+    ffi::CStr,
     fs::{self, File},
     io::{self, Write},
     path::PathBuf,
@@ -7,6 +8,7 @@ use std::{
 use clap::{Args, ValueEnum};
 use sha1::{Digest, Sha1};
 use thiserror::Error;
+use zlib_rs::{DeflateConfig, ReturnCode, compress_bound, compress_slice};
 
 use crate::commands::Runnable;
 
@@ -39,6 +41,9 @@ pub enum HashObjectError {
 
     #[error("hashing {0:?} objects is not implemented")]
     Unimplemented(HashObjectType),
+
+    #[error("compression failed: {0:?}")]
+    CompressionFailed(String),
 }
 
 impl Runnable for HashObjectCommand {
@@ -58,6 +63,24 @@ impl Runnable for HashObjectCommand {
         let hash = Sha1::digest(final_contents.clone());
         let encoded = hex::encode(hash);
 
+        // Compress using zlib
+        let mut compressed_final_contents = vec![0u8; compress_bound(final_contents.len())];
+        let (compressed, rc) = compress_slice(
+            &mut compressed_final_contents,
+            &final_contents,
+            DeflateConfig::best_speed(),
+        );
+
+        match rc {
+            ReturnCode::Ok | ReturnCode::StreamEnd | ReturnCode::NeedDict => {}
+            err => {
+                let reason = unsafe { CStr::from_ptr(err.error_message()) }
+                    .to_string_lossy()
+                    .into_owned();
+                return Err(HashObjectError::CompressionFailed(reason).into());
+            }
+        }
+
         if self.write {
             let prefix = &encoded[..2];
             let suffix = &encoded[2..];
@@ -65,7 +88,7 @@ impl Runnable for HashObjectCommand {
 
             match fs::create_dir_all(dir_path.clone()) {
                 Ok(_) => match File::create(dir_path.join(suffix)) {
-                    Ok(mut file) => match file.write(&final_contents) {
+                    Ok(mut file) => match file.write(&compressed) {
                         Ok(_) => {}
                         Err(e) => {
                             return Err(HashObjectError::Io {
