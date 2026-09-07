@@ -5,7 +5,8 @@ use std::process::{Command, Output};
 use clap::Parser;
 use croc::cli::Croc;
 use croc::commands::CrocCommands;
-use croc::commands::hash_object::{HashObjectError, HashObjectType};
+use croc::commands::hash_object::HashObjectError;
+use croc::objects::ObjectType;
 use tempfile::TempDir;
 
 /// SHA-1 of the git object `blob 11\0hello world`.
@@ -61,7 +62,7 @@ fn file_argument_is_positional() {
 #[test]
 fn type_defaults_to_blob() {
     let cmd = hash_object_cmd(&["hash-object", "file.txt"]);
-    assert!(matches!(cmd.kind, HashObjectType::Blob));
+    assert!(matches!(cmd.kind, ObjectType::Blob));
 }
 
 #[test]
@@ -71,7 +72,7 @@ fn type_accepts_short_and_long_flags() {
         ["hash-object", "--type", "tree", "file.txt"],
     ] {
         let cmd = hash_object_cmd(&args);
-        assert!(matches!(cmd.kind, HashObjectType::Tree));
+        assert!(matches!(cmd.kind, ObjectType::Tree));
     }
 }
 

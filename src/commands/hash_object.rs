@@ -10,25 +10,17 @@ use sha1::{Digest, Sha1};
 use thiserror::Error;
 use zlib_rs::{DeflateConfig, ReturnCode, compress_bound, compress_slice};
 
-use crate::commands::Runnable;
+use crate::{commands::Runnable, objects::ObjectType};
 
 #[derive(Args, Debug, Clone)]
 pub struct HashObjectCommand {
     #[arg(short = 't', long = "type", default_value = "blob")]
-    pub kind: HashObjectType,
+    pub kind: ObjectType,
 
     #[arg(short = 'w', default_value_t = false)]
     pub write: bool,
 
     pub file: PathBuf,
-}
-
-#[derive(ValueEnum, Debug, Clone)]
-pub enum HashObjectType {
-    Commit,
-    Tree,
-    Blob,
-    Tag,
 }
 
 #[derive(Error, Debug)]
@@ -40,7 +32,7 @@ pub enum HashObjectError {
     Io { path: PathBuf, source: io::Error },
 
     #[error("hashing {0:?} objects is not implemented")]
-    Unimplemented(HashObjectType),
+    Unimplemented(ObjectType),
 
     #[error("compression failed: {0:?}")]
     CompressionFailed(String),
@@ -49,7 +41,7 @@ pub enum HashObjectError {
 impl Runnable for HashObjectCommand {
     fn run(&self) -> anyhow::Result<()> {
         let contents = match self.kind {
-            HashObjectType::Blob => self.read_file()?,
+            ObjectType::Blob => self.read_file()?,
             ref kind => return Err(HashObjectError::Unimplemented(kind.clone()).into()),
         };
 

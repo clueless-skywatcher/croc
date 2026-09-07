@@ -1,5 +1,6 @@
 pub mod cli;
 pub mod commands;
+pub mod objects;
 
 use crate::cli::Croc;
 use crate::commands::{CrocCommands, Runnable};
@@ -10,5 +11,6 @@ pub fn run(cli: Croc) -> anyhow::Result<()> {
         CrocCommands::Init(cmd) => cmd.run(),
         CrocCommands::CatFile(cmd) => cmd.run(),
         CrocCommands::HashObject(cmd) => cmd.run(),
+        CrocCommands::LsTree(cmd) => cmd.run(),
     }
 }
